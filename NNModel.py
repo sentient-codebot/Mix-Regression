@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import math
 from RIM import RIMCell
 
 class MixProcessPredictModel(nn.Module):
@@ -15,7 +16,9 @@ class MixProcessPredictModel(nn.Module):
         self.output_size = 1
 
         self.RIMModel = RIMCell(self.device, self.input_size, self.hidden_size, self.num_units, self.kA, self.rnn_cell)
-        self.out_layer = nn.Linear(self.hidden_size * self.num_units, self.output_size) # NOTE: really? use all hidden_states or only activated?
+        self.out_layer_0 = nn.Linear(self.hidden_size * self.num_units, min(1,math.floor(self.hidden_size * self.num_units /2))) # NOTE: really? use all hidden_states or only activated?
+        self.out_layer_1 = nn.Linear(min(1,math.floor(self.hidden_size * self.num_units /2)), self.output_size)
+        self.relu = nn.ReLU()
 
     def forward(self, input_seq):
         '''
@@ -32,7 +35,9 @@ class MixProcessPredictModel(nn.Module):
         predicted = torch.tensor([], device=self.device)
         for input_entry in input_split:
             hs, cs, _ = self.RIMModel(input_entry, hs, cs)
-            out = self.out_layer(hs.reshape(input_seq.size(0),-1))
+            out = self.out_layer_0(hs.reshape(input_seq.size(0),-1))
+            out = self.relu(out)
+            out = self.out_layer_1(out)
             predicted = torch.cat((predicted, out), 1)
             pass
         return predicted

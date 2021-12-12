@@ -36,7 +36,7 @@ loss_function = nn.MSELoss()
 def train_model(model, epochs, trainloader, testloader=None): 
     optimizer = torch.optim.Adam(model.parameters(), 
                                 lr=args.lr)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=0.01)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=2, threshold=0.0003)
 
     start_epoch = 0
     if args.loadlast:
@@ -70,7 +70,7 @@ def train_model(model, epochs, trainloader, testloader=None):
         root_mean_mse = torch.sqrt(epoch_loss/(sample_count*seq_length))
         scheduler.step(root_mean_mse)
 
-        print(f"epoch {epoch}: loss={epoch_loss: .2f}, RMSE={root_mean_mse: .2f}")
+        print(f"epoch {epoch}: loss={epoch_loss: .2f}, RMSE={root_mean_mse: .4f}")
         writer.add_scalar('Loss/Train', epoch_loss, epoch)
 
     viridis = cm.get_cmap('viridis', 2)
