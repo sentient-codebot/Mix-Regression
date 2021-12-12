@@ -29,7 +29,7 @@ class MixProcessPredictModel(nn.Module):
         if self.rnn_cell == 'LSTM':
             cs = torch.randn(input_seq.size(0), self.num_units, self.hidden_size).to(self.device)
         input_split = torch.split(input_seq, self.input_size, 1)
-        predicted = torch.tensor([])
+        predicted = torch.tensor([], device=self.device)
         for input_entry in input_split:
             hs, cs, _ = self.RIMModel(input_entry, hs, cs)
             out = self.out_layer(hs.reshape(input_seq.size(0),-1))

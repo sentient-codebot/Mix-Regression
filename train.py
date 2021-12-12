@@ -84,8 +84,8 @@ def train_model(model, epochs, trainloader, testloader=None):
 
     viridis = cm.get_cmap('viridis', 2)
     fig, ax = plt.subplots(1,1)
-    ax.plot(target_seq[0])
-    ax.plot(predicted_seq[0].detach())
+    ax.plot(target_seq[0].to(torch.device('cpu')))
+    ax.plot(predicted_seq[0].detach().to(torch.device('cpu')))
     plt.show()
     pass
 
@@ -97,7 +97,7 @@ def main():
     seq_length = 1000
     trainset = MixProcessData(num_seq, seq_length, device=device)
     len_dataset=len(trainset)
-    trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
+    trainloader = DataLoader(trainset, batch_size=64, shuffle=True)
 
     model = MixProcessPredictModel(args).to(device)
 
