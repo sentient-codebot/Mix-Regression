@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 data/mixprocess_5000_1000.npz
 .DS_Store
+data/mixprocess_10000_500.npz

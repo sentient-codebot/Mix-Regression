@@ -36,7 +36,7 @@ loss_function = nn.MSELoss()
 def train_model(model, epochs, trainloader, testloader=None): 
     optimizer = torch.optim.Adam(model.parameters(), 
                                 lr=args.lr)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=2, threshold=0.0003)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=4, threshold=0.0003)
 
     start_epoch = 0
     if args.loadlast:
@@ -104,8 +104,8 @@ def test_model(model, valloader):
     pass
 
 def main():
-    num_seq = 500
-    seq_length = 100
+    num_seq = 5000
+    seq_length = 500
     trainset = MixProcessData(num_seq, seq_length, device=device)
     testset = MixProcessData(500, 100, device=device)
     len_dataset=len(trainset)

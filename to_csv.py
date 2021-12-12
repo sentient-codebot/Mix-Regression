@@ -29,7 +29,7 @@ sample_array = np.array(all_samples).squeeze()
 target_array = np.array(all_targets).squeeze()
 state_array = np.array(all_states, dtype=int).squeeze()
 
-outfile = 'data/' + f'mixprocess_{args.num_seq}_{args.seq_length}.npz'
+outfile = 'data/' + f'mixprocess_{args.num_seq}_{args.seq_length}'
 
 np.savez(outfile, samples=sample_array, targets=target_array, states=state_array)
     

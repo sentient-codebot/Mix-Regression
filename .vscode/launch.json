@@ -39,17 +39,17 @@
                 "--input_size",
                 "1",
                 "--hidden_size",
-                "10",
+                "5",
                 "--num_units",
-                "4",
-                "--kA",
                 "2",
+                "--kA",
+                "1",
                 "--rnn_cell",
                 "LSTM",
                 "--lr",
-                "0.01",
+                "0.025",
                 "--epochs",
-                "30",
+                "10",
                 "--loadlast"
             ]
         }
