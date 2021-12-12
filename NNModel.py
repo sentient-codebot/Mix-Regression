@@ -13,9 +13,9 @@ class MixProcessPredictModel(nn.Module):
         self.kA = args.kA
         self.rnn_cell = args.rnn_cell
         self.output_size = 1
-        self.RIMModel = RIMCell(self.device, self.input_size, self.hidden_size, self.num_units, self.kA, self.rnn_cell)
 
-        self.Output = nn.Linear(self.hidden_size * self.num_units, self.output_size) # NOTE: really? use all hidden_states or only activated?
+        self.RIMModel = RIMCell(self.device, self.input_size, self.hidden_size, self.num_units, self.kA, self.rnn_cell)
+        self.out_layer = nn.Linear(self.hidden_size * self.num_units, self.output_size) # NOTE: really? use all hidden_states or only activated?
 
     def forward(self, input_seq):
         '''
@@ -24,14 +24,15 @@ class MixProcessPredictModel(nn.Module):
         if self.cuda:
             input_seq = input_seq.to(self.device)
 
-        hs = torch.randn(seq_past.size(0), self.num_units, self.hidden_size).to(self.device)
+        hs = torch.randn(input_seq.size(0), self.num_units, self.hidden_size).to(self.device)
         cs = None
         if self.rnn_cell == 'LSTM':
-            cs = torch.randn(seq_past.size(0), self.num_units, self.hidden_size).to(self.device)
+            cs = torch.randn(input_seq.size(0), self.num_units, self.hidden_size).to(self.device)
         input_split = torch.split(input_seq, self.input_size, 1)
         predicted = torch.tensor([])
         for input_entry in input_split:
             hs, cs, _ = self.RIMModel(input_entry, hs, cs)
-            predicted.append(self.Output(hs.reshape(input_seq.size(0),-1)))
-
+            out = self.out_layer(hs.reshape(input_seq.size(0),-1))
+            predicted = torch.cat((predicted, out), 1)
+            pass
         return predicted

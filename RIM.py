@@ -199,7 +199,7 @@ class RIMCell(nn.Module):
         Output: inputs (list of size num_units with each element of shape (batch_size, input_value_size))
                 mask_ binary array of shape (batch_size, num_units) where 1 indicates active and 0 indicates inactive
         """
-        key_layer = self.key(x.float()) # input size 1 or fullsize??
+        key_layer = self.key(x) # input size 1 or fullsize??
         value_layer = self.value(x)
         query_layer = self.query(h)
 

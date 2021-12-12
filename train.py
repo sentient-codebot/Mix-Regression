@@ -24,6 +24,7 @@ args = parser.parse_args()
 writer = SummaryWriter()
 
 log_dir = 'logs'
+len_dataset = 1
 
 device = torch.device('cuda') if args.cuda else torch.device('cpu')
 
@@ -49,9 +50,10 @@ def train_model(model, epochs, trainloader, testloader=None):
     
     for epoch in range(start_epoch, epochs):
         epoch_loss = 0
-        for noisy_seq, target_seq, _ in tqdm(trainloader):
+        sample_count = 0
+        for input_seq, target_seq, _ in tqdm(trainloader):
             model.train()
-            predicted_seq = model(noisy_seq)
+            predicted_seq = model(input_seq)
             loss = loss_function(target_seq, predicted_seq)
 
             optimizer.zero_grad() # NOTE should it be here of before forward
@@ -59,20 +61,13 @@ def train_model(model, epochs, trainloader, testloader=None):
             optimizer.step()
 
             epoch_loss += loss.detach()
+            sample_count += input_seq.shape[0]
+            seq_length = input_seq.shape[1]
 
         scheduler.step(epoch_loss)
-        
-        error = []
-        for x, m in tqdm(trainloader):
-            model.eval()
-            seq_past, seq_current = torch.split(x, [x.shape[1]-args.output_size, args.output_size], 1)
-            seq_predicted = model(seq_past)
-            mean_error.append(torch.abs(seq_current-seq_predicted)/seq_current)
-        mean_error = torch.mean(error)
-            
-        scheduler.step(mean_error)
+        root_mean_mse = torch.sqrt(epoch_loss/(sample_count*seq_length))
 
-        print(f"epoch {epoch}: loss={epoch_loss: .2f}, mean error={mean_error*100: .2f}%")
+        print(f"epoch {epoch}: loss={epoch_loss: .2f}, RMSE={root_mean_mse: .2f}")
         writer.add_scalar('Loss/Train', epoch_loss, epoch)
         state_current = {
             'model_state_dict': model.state_dict(),
@@ -87,9 +82,10 @@ def test_model(model, valloader):
     pass
 
 def main():
-    num_seq = 5000
-    seq_length = 1000
-    trainset = MixProcessData(num_seq, seq_length)
+    num_seq = 500
+    seq_length = 100
+    trainset = MixProcessData(num_seq, seq_length, device=device)
+    len_dataset=len(trainset)
     trainloader = DataLoader(trainset, batch_size=16, shuffle=True)
 
     model = MixProcessPredictModel(args).to(device)

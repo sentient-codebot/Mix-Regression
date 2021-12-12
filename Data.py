@@ -15,9 +15,9 @@ class MixProcessData():
         return len(self.samples)
 
     def __getitem__(self, idx):
-        sample = torch.as_tensor(self.samples[idx], device=self.device)
-        target = torch.as_tensor(self.targrts[idx], device=self.device)
-        state = torch.as_tensor(self.states[idx], device=self.device)
+        sample = torch.as_tensor(self.samples[idx], dtype=torch.float, device=self.device)
+        target = torch.as_tensor(self.targrts[idx], dtype=torch.float, device=self.device)
+        state = torch.as_tensor(self.states[idx], dtype=torch.float, device=self.device)
 
         return sample, target, state
 
