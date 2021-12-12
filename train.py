@@ -73,15 +73,6 @@ def train_model(model, epochs, trainloader, testloader=None):
         print(f"epoch {epoch}: loss={epoch_loss: .2f}, RMSE={root_mean_mse: .2f}")
         writer.add_scalar('Loss/Train', epoch_loss, epoch)
 
-    state_current = {
-        'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
-        'epoch': epoch,
-        'train_loss': epoch_loss
-    }
-    with open(log_dir + f'/current_model.pt', 'wb') as f: # TODO add arguments to the filename
-        torch.save(state_current, f)
-
     viridis = cm.get_cmap('viridis', 2)
     fig, ax = plt.subplots(1,1)
     ax.plot(target_seq[0].to(torch.device('cpu')))
@@ -89,12 +80,21 @@ def train_model(model, epochs, trainloader, testloader=None):
     plt.show()
     pass
 
+    state_current = {
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'epoch': epoch,
+            'train_loss': epoch_loss
+        }
+    with open(log_dir + f'/current_model.pt', 'wb') as f: # TODO add arguments to the filename
+            torch.save(state_current, f)
+
 def test_model(model, valloader):
     pass
 
 def main():
-    num_seq = 5000
-    seq_length = 1000
+    num_seq = 500
+    seq_length = 100
     trainset = MixProcessData(num_seq, seq_length, device=device)
     len_dataset=len(trainset)
     trainloader = DataLoader(trainset, batch_size=64, shuffle=True)
