@@ -17,7 +17,8 @@ class MixProcessPredictModel(nn.Module):
 
         self.RIMModel = RIMCell(self.device, self.input_size, self.hidden_size, self.num_units, self.kA, self.rnn_cell)
         self.out_layer_0 = nn.Linear(self.hidden_size * self.num_units, min(1,math.floor(self.hidden_size * self.num_units /2))) # NOTE: really? use all hidden_states or only activated?
-        self.out_layer_1 = nn.Linear(min(1,math.floor(self.hidden_size * self.num_units /2)), self.output_size)
+        self.out_layer_1 = nn.Linear(min(1,math.floor(self.hidden_size * self.num_units /2)), min(1,math.floor(self.hidden_size * self.num_units /2)))
+        self.out_layer_2 = nn.Linear(min(1,math.floor(self.hidden_size * self.num_units /2)), self.output_size)
         self.relu = nn.ReLU()
 
     def forward(self, input_seq):
@@ -27,7 +28,7 @@ class MixProcessPredictModel(nn.Module):
         if self.cuda:
             input_seq = input_seq.to(self.device)
 
-        hs = torch.randn(input_seq.size(0), self.num_units, self.hidden_size).to(self.device)
+        hs = torch.zeros(input_seq.size(0), self.num_units, self.hidden_size).to(self.device) # NOTE or randn
         cs = None
         if self.rnn_cell == 'LSTM':
             cs = torch.randn(input_seq.size(0), self.num_units, self.hidden_size).to(self.device)
@@ -38,6 +39,8 @@ class MixProcessPredictModel(nn.Module):
             out = self.out_layer_0(hs.reshape(input_seq.size(0),-1))
             out = self.relu(out)
             out = self.out_layer_1(out)
+            out = self.relu(out)
+            out = self.out_layer_2(out)
             predicted = torch.cat((predicted, out), 1)
             pass
         return predicted
