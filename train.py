@@ -4,10 +4,13 @@ from torch.utils.data import DataLoader
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import argparse
 from NNModel import MixProcessPredictModel
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
+
+import torch.multiprocessing as mp
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cuda', action='store_true', default=False)
@@ -33,7 +36,7 @@ loss_function = nn.MSELoss()
 def train_model(model, epochs, trainloader, testloader=None): 
     optimizer = torch.optim.Adam(model.parameters(), 
                                 lr=args.lr)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=100)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', threshold=1)
 
     start_epoch = 0
     if args.loadlast:
@@ -64,8 +67,8 @@ def train_model(model, epochs, trainloader, testloader=None):
             sample_count += input_seq.shape[0]
             seq_length = input_seq.shape[1]
 
-        scheduler.step(epoch_loss)
         root_mean_mse = torch.sqrt(epoch_loss/(sample_count*seq_length))
+        scheduler.step(root_mean_mse)
 
         print(f"epoch {epoch}: loss={epoch_loss: .2f}, RMSE={root_mean_mse: .2f}")
         writer.add_scalar('Loss/Train', epoch_loss, epoch)
@@ -78,19 +81,37 @@ def train_model(model, epochs, trainloader, testloader=None):
     with open(log_dir + f'/current_model.pt', 'wb') as f: # TODO add arguments to the filename
         torch.save(state_current, f)
 
+    viridis = cm.get_cmap('viridis', 2)
+    fig, ax = plt.subplots(1,1)
+    ax.plot(target_seq[0])
+    ax.plot(predicted_seq[0])
+
 def test_model(model, valloader):
     pass
 
 def main():
-    num_seq = 500
-    seq_length = 100
+    num_seq = 5000
+    seq_length = 1000
     trainset = MixProcessData(num_seq, seq_length, device=device)
     len_dataset=len(trainset)
-    trainloader = DataLoader(trainset, batch_size=16, shuffle=True)
+    trainloader = DataLoader(trainset, batch_size=16, num_worker=2, shuffle=True)
 
     model = MixProcessPredictModel(args).to(device)
 
-    train_model(model, args.epochs, trainloader, trainloader)
+    if args.cuda:
+        train_model(model, args.epochs, trainloader, trainloader)
+    else:
+        num_processes = 4
+        model = MyModel()
+        # NOTE: this is required for the ``fork`` method to work
+        model.share_memory()
+        processes = []
+        for rank in range(num_processes):
+            p = mp.Process(target=train_model, args=(model, args.epochs, trainloader, trainloader))
+            p.start()
+            processes.append(p)
+        for p in processes:
+            p.join()
 
 if __name__ == "__main__":
     main()
