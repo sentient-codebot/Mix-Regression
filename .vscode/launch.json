@@ -1,0 +1,56 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Train: MixProcess-predictor (cuda)",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--cuda",
+                "--input_size",
+                "1",
+                "--hidden_size",
+                "10",
+                "--num_units",
+                "4",
+                "--kA",
+                "2",
+                "--rnn_cell",
+                "LSTM",
+                "--lr",
+                "0.01",
+                "--epochs",
+                "100",
+                "--loadlast"
+            ]
+        },
+        {
+            "name": "Train: MixProcess-predictor (cpu)",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--input_size",
+                "1",
+                "--hidden_size",
+                "10",
+                "--num_units",
+                "3",
+                "--kA",
+                "4",
+                "--rnn_cell",
+                "LSTM",
+                "--lr",
+                "0.005",
+                "--epochs",
+                "20"
+            ]
+        }
+    ]
+}
