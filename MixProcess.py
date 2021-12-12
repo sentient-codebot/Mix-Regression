@@ -21,7 +21,7 @@ class MixProcess():
         self.rng = default_rng()
         self.t = 0
         self.init_pha = self.rng.random()*2*3.14159
-        self.base_freq = 2*3.14159/20
+        self.base_freq = 2*3.14159/100
         self.freq_amp = 1
         self.t = 0
         self.state = self.rng.choice(np.arange(2))
@@ -37,9 +37,9 @@ class MixProcess():
 
     def update_state(self):
         '''
-            0   1
-        0   0.9 0.1 noise only
-        1   0.1 0.9 speech present
+            0       1
+        0   0.95    0.05 noise only
+        1   0.95    0.05 speech present
         '''
         new_state = self.rng.choice(np.arange(2), p=self.P[self.state,:])
         if new_state==0 and self.state==1:
