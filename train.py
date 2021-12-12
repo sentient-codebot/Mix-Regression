@@ -67,11 +67,22 @@ def train_model(model, epochs, trainloader, testloader=None):
             sample_count += input_seq.shape[0]
             seq_length = input_seq.shape[1]
 
-        root_mean_mse = torch.sqrt(epoch_loss/(sample_count*seq_length))
+        with torch.no_grad():
+            for input_seq, target_seq, _ in tqdm(testloader):
+                model.eval()
+                predicted_seq = model(input_seq)
+                loss = loss_function(target_seq, predicted_seq)
+
+                epoch_loss += loss.detach()
+                sample_count += input_seq.shape[0]
+                seq_length = input_seq.shape[1]
+            root_mean_mse = torch.sqrt(epoch_loss/(sample_count*seq_length))
+
         scheduler.step(root_mean_mse)
 
         print(f"epoch {epoch}: loss={epoch_loss: .2f}, RMSE={root_mean_mse: .4f}")
         writer.add_scalar('Loss/Train', epoch_loss, epoch)
+        writer.add_scalar('RMSE/Test', root_mean_mse, epoch)
 
     viridis = cm.get_cmap('viridis', 2)
     fig, ax = plt.subplots(1,1)
@@ -93,15 +104,17 @@ def test_model(model, valloader):
     pass
 
 def main():
-    num_seq = 500
-    seq_length = 100
+    num_seq = 5000
+    seq_length = 1000
     trainset = MixProcessData(num_seq, seq_length, device=device)
+    testset = MixProcessData(500, 100, device=device)
     len_dataset=len(trainset)
     trainloader = DataLoader(trainset, batch_size=64, shuffle=True)
+    testloader = DataLoader(testset, batch_size=64, shuffle=True)
 
     model = MixProcessPredictModel(args).to(device)
 
-    train_model(model, args.epochs, trainloader, trainloader)
+    train_model(model, args.epochs, trainloader, testloader)
 
 if __name__ == "__main__":
     main()
