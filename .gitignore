@@ -130,3 +130,6 @@ dmypy.json
 data/mixprocess_5000_1000.npz
 .DS_Store
 data/mixprocess_10000_500.npz
+data/mixprocess_500_100 copy.npz
+data/mixprocess_5000_500 copy.npz
+data/mixprocess_5000_500.npz
