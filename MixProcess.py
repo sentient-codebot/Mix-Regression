@@ -29,9 +29,9 @@ class MixProcess():
         self.signal = 0.
         self.noise = 0.
         self.output = 0.
-        self.P = np.array([[0.95, 0.05],[0.05, 0.95]])
+        self.P = np.array([[0.95, 0.05],[0.01, 0.99]])
         # noise stuff
-        self.noise_psd_choice = np.array([0.3, 1, 2])
+        self.noise_psd_choice = np.array([0.3, 1])
         self.noise_psd = 1
         self.signal_psd = 10
 
@@ -51,7 +51,7 @@ class MixProcess():
         range (0.5,1.5)
         '''
         t = self.t/self.period - np.floor(self.t/self.period)
-        return 0.5+2*t if t<=0.5 else 1.5-2*(t-0.5)
+        return 0.75+1*t if t<=0.5 else 1.25-1*(t-0.5)
     
     def signal_gen(self):
         self.freq_amp = self.freq_func()
@@ -76,7 +76,10 @@ def main():
     samples = []
     signals = []
     states = []
-    for idx in range(1000):
+    for idle_idx in range(500*100):
+        model.forward()
+    
+    for idx in range(500):
         sample,signal,noise,state = model.forward()
         samples.append(sample)
         signals.append(signal)

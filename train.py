@@ -86,9 +86,9 @@ def train_model(model, epochs, trainloader, testloader=None):
 
     viridis = cm.get_cmap('viridis', 2)
     fig, ax = plt.subplots(1,1)
-    ax.plot(target_seq[0].to(torch.device('cpu')))
-    ax.plot(predicted_seq[0].detach().to(torch.device('cpu')))
-    plt.show()
+    ax.plot(input_seq[0,0,:].to(torch.device('cpu')))
+    ax.plot(predicted_seq[0,0,:].detach().to(torch.device('cpu')))
+    plt.show() # NOTE why target signal changed???
     pass
 
     state_current = {
@@ -104,14 +104,19 @@ def test_model(model, valloader):
     pass
 
 def main():
-    num_seq = 10000
+    num_seq = 5000
     seq_length = 500
     trainset = MixProcessData(num_seq, seq_length, device=device)
-    testset = MixProcessData(500, 100, device=device)
+    testset = MixProcessData(100, 500, device=device)
     len_dataset=len(trainset)
     trainloader = DataLoader(trainset, batch_size=64, shuffle=True)
     testloader = DataLoader(testset, batch_size=64, shuffle=True)
 
+    # for sample, target, _ in iter(trainloader):
+    #     fig, ax = plt.subplots(1,1)
+    #     ax.plot(target[1,0,:])
+    #     plt.show()
+    #     pass # NOTE wtf?????????? shuffle???
     model = MixProcessPredictModel(args).to(device)
 
     train_model(model, args.epochs, trainloader, testloader)

@@ -23,12 +23,12 @@ class MixProcessPredictModel(nn.Module):
 
     def forward(self, input_seq):
         '''
-        input_seq (BATCHSIZE, SEGMENT_LENGTH)
+        input_seq (BATCHSIZE, 1, SEGMENT_LENGTH)
         '''
         if self.cuda:
             input_seq = input_seq.to(self.device)
-
-        hs = torch.zeros(input_seq.size(0), self.num_units, self.hidden_size).to(self.device) # NOTE or randn
+        input_seq = input_seq.squeeze()
+        hs = torch.randn(input_seq.size(0), self.num_units, self.hidden_size).to(self.device) # NOTE or randn
         cs = None
         if self.rnn_cell == 'LSTM':
             cs = torch.randn(input_seq.size(0), self.num_units, self.hidden_size).to(self.device)
@@ -43,4 +43,4 @@ class MixProcessPredictModel(nn.Module):
             out = self.out_layer_2(out)
             predicted = torch.cat((predicted, out), 1)
             pass
-        return predicted
+        return predicted.unsqueeze(1)
