@@ -54,9 +54,9 @@ def train_model(model, epochs, trainloader, testloader=None):
     for epoch in range(start_epoch, epochs):
         epoch_loss = 0
         sample_count = 0
-        for input_seq, target_seq, _ in tqdm(trainloader):
-            model.train()
-            predicted_seq = model(input_seq)
+        for input_seq, target_seq, _ in tqdm(trainloader): # load noisy and clean sequences
+            model.train() 
+            predicted_seq = model(input_seq) # output of the model: filtered sequence 
             loss = loss_function(target_seq, predicted_seq)
 
             optimizer.zero_grad() # NOTE should it be here of before forward

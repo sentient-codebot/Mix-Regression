@@ -35,12 +35,12 @@ class MixProcessPredictModel(nn.Module):
         input_split = torch.split(input_seq, self.input_size, 1)
         predicted = torch.tensor([], device=self.device)
         for input_entry in input_split:
-            hs, cs, _ = self.RIMModel(input_entry, hs, cs)
-            out = self.out_layer_0(hs.reshape(input_seq.size(0),-1))
+            hs, cs, _ = self.RIMModel(input_entry, hs, cs) # update hidden states
+            out = self.out_layer_0(hs.reshape(input_seq.size(0),-1)) # pass to output layers
             out = self.relu(out)
             out = self.out_layer_1(out)
             out = self.relu(out)
-            out = self.out_layer_2(out)
-            predicted = torch.cat((predicted, out), 1)
+            out = self.out_layer_2(out) # filtered signal (current timestep)
+            predicted = torch.cat((predicted, out), 1) # concatenate to a sequence
             pass
         return predicted

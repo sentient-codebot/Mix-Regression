@@ -267,9 +267,10 @@ class RIMCell(nn.Module):
         Output: new hs, cs for LSTM
                 new hs for GRU
         """
+        # Concatenate zeros to the input
         size = x.size()
         null_input = torch.zeros(size[0], 1, size[1]).float().to(self.device)
-        x = torch.cat((x.unsqueeze(1), null_input), dim = 1)
+        x = torch.cat((x.unsqueeze(1), null_input), dim = 1) 
 
         # Compute input attention
         inputs, mask = self.input_attention_mask(x, hs)
@@ -279,7 +280,7 @@ class RIMCell(nn.Module):
         
 
         # Compute RNN(LSTM or GRU) output
-        
+        #   still calculate the update of all (active/inactive) RIMs
         if cs is not None:
             hs, cs = self.rnn(inputs, (hs, cs))
         else:
@@ -292,6 +293,7 @@ class RIMCell(nn.Module):
         # Compute communication attention
         h_new = self.communication_attention(h_new, mask.squeeze(2))
 
+        # Change the inactive RIMs states back to their old values
         hs = mask * h_new + (1 - mask) * h_old
         if cs is not None:
             cs = mask * cs + (1 - mask) * c_old
