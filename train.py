@@ -104,7 +104,7 @@ def test_model(model, valloader):
     pass
 
 def main():
-    num_seq = 500
+    num_seq = 5000
     seq_length = 500
     trainset = MixProcessData(num_seq, seq_length, device=device)
     testset = MixProcessData(100, 500, device=device)

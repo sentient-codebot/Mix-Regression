@@ -17,22 +17,22 @@ class MixProcess():
     3. system
         state transfer matrix
     '''
-    def __init__(self):
+    def __init__(self, base_period=100, snr_choices=(0.3, 1), noise_trans_mat=(0.98, 0.02), signal_trans_mat=(0.01, 0.99)):
         self.rng = default_rng()
         self.t = 0
         self.init_pha = self.rng.random()*2*3.14159
-        self.base_freq = 2*3.14159/100
+        self.base_freq = 2*3.14159/base_period
         self.freq_amp = 0.75+0.5*self.rng.random()
         self.t = 0
         self.state = self.rng.choice(np.arange(2))
         self.signal = 0.0
         self.noise = 0.
         self.output = 0.
-        self.P = np.array([[0.95, 0.05],[0.01, 0.99]])
+        self.P = np.array([noise_trans_mat,signal_trans_mat])
         # noise stuff
-        self.noise_psd_choice = np.array([0.3, 1])
+        self.signal_psd = np.array([10])
+        self.noise_psd_choice = self.signal_psd/np.array(snr_choices)
         self.noise_psd = 1
-        self.signal_psd = 10
 
     def update_state(self):
         '''
