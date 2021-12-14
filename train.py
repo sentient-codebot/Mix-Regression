@@ -86,8 +86,8 @@ def train_model(model, epochs, trainloader, testloader=None):
 
     viridis = cm.get_cmap('viridis', 2)
     fig, ax = plt.subplots(1,1)
-    ax.plot(input_seq[0,0,:].to(torch.device('cpu')))
-    ax.plot(predicted_seq[0,0,:].detach().to(torch.device('cpu')))
+    ax.plot(target_seq[0,:].to(torch.device('cpu')))
+    ax.plot(predicted_seq[0,:].detach().to(torch.device('cpu')))
     plt.show() # NOTE why target signal changed???
     pass
 
@@ -104,7 +104,7 @@ def test_model(model, valloader):
     pass
 
 def main():
-    num_seq = 5000
+    num_seq = 500
     seq_length = 500
     trainset = MixProcessData(num_seq, seq_length, device=device)
     testset = MixProcessData(100, 500, device=device)
