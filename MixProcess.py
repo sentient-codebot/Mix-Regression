@@ -17,7 +17,7 @@ class MixProcess():
     3. system
         state transfer matrix
     '''
-    def __init__(self, base_period=100, snr_choices=(0.3, 1), noise_trans_mat=(0.98, 0.02), signal_trans_mat=(0.01, 0.99)):
+    def __init__(self, base_period=100, snr_choices=(3, 10), noise_trans_mat=(0.98, 0.02), signal_trans_mat=(0.01, 0.99)):
         self.rng = default_rng()
         self.t = 0
         self.init_pha = self.rng.random()*2*3.14159
@@ -30,7 +30,7 @@ class MixProcess():
         self.output = 0.
         self.P = np.array([noise_trans_mat,signal_trans_mat])
         # noise stuff
-        self.signal_psd = np.array([10])
+        self.signal_psd = 10.
         self.noise_psd_choice = self.signal_psd/np.array(snr_choices)
         self.noise_psd = 1
 
@@ -79,10 +79,13 @@ def main():
             samples.append(sample)
             signals.append(signal)
             states.append(state)
-            if instance_idx==20:
-                ax.scatter(x=idx, y=signal)
-        plt.show()
-        pass
+            # if instance_idx==20:
+            #     ax.scatter(x=idx, y=signal)
+        if instance_idx == 20:
+            ax.plot(samples)
+            ax.plot(signals,'--')
+            plt.show()
+            pass
         samples=[]
         signals=[]
         states=[]
